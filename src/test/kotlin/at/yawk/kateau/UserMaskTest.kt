@@ -1,5 +1,6 @@
 package at.yawk.kateau
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -29,5 +30,12 @@ class UserMaskTest {
     fun `parse wildcard host`() = Assert.assertEquals(
             UserMask.parse("kitty!yawkat@*"),
             UserMask("kitty", "yawkat", null)
+    )
+
+    @Test
+    fun deserialize() = Assert.assertEquals(
+            ObjectMapper().findAndRegisterModules()
+                    .readValue("\"kitty!yawkat@cats.coffee\"", UserMask::class.java),
+            UserMask("kitty", "yawkat", "cats.coffee")
     )
 }
