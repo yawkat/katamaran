@@ -12,6 +12,7 @@ import org.kitteh.irc.client.library.event.channel.ChannelMessageEvent
 import org.kitteh.irc.client.library.event.channel.ChannelModeInfoListEvent
 import org.kitteh.irc.client.library.event.channel.RequestedChannelJoinCompleteEvent
 import org.kitteh.irc.client.library.event.user.PrivateMessageEvent
+import org.kitteh.irc.client.library.util.Sanity
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -45,19 +46,30 @@ class ServerManager(val client: Client, val config: Server) {
     val op by lazy { client.serverInfo.getChannelUserMode('o').get() }
 
     @Handler
-    fun message(chatMessage: ChannelMessageEvent) {
-        val msg = chatMessage.message
+    fun message(evt: ChannelMessageEvent) {
+        val msg = evt.message
         val prefix = client.nick + ": "
         if (msg.startsWith(prefix)) {
-            val channelConfig = channelConfig(chatMessage.channel) ?: return
+            val channelConfig = channelConfig(evt.channel) ?: return
             val cmd = msg.removePrefix(prefix)
-            val reply: String? = when (cmd) {
-                "op" -> {
-                    if (channelConfig.ops.any { it.matches(chatMessage.actor) }) {
-                        chatMessage.channel.commands().mode()
-                                .add(true, op, chatMessage.actor.nick)
+            val reply: String? = when {
+                cmd == "op" -> {
+                    if (channelConfig.ops.any { it.matches(evt.actor) }) {
+                        evt.channel.commands().mode()
+                                .add(true, op, evt.actor.nick)
                                 .execute()
                         null
+                    } else {
+                        "You aren't allowed to do that"
+                    }
+                }
+                cmd.startsWith("invite ") -> {
+                    if (channelConfig.inviters.any { it.matches(evt.actor) }) {
+                        val invitee = cmd.removePrefix("invite ")
+                        Sanity.safeMessageCheck(invitee, "Invitee")
+                        Sanity.truthiness(invitee.indexOf(' ') == -1, "Invitee cannot have spaces")
+                        client.sendRawLine("INVITE $invitee ${evt.channel.messagingName}")
+                        "Invite sent"
                     } else {
                         "You aren't allowed to do that"
                     }
@@ -65,7 +77,7 @@ class ServerManager(val client: Client, val config: Server) {
                 else -> "Unknown command"
             }
             if (reply != null) {
-                chatMessage.sendReply(reply)
+                evt.sendReply(reply)
             }
         }
     }

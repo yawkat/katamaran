@@ -22,6 +22,7 @@ data class Server(
 
 data class ChannelConfig(
         val ops: List<UserMask>,
+        val inviters: List<UserMask>,
         val persistInvite: Boolean
 )
 
