@@ -29,7 +29,6 @@ fun main(args: Array<String>) {
                 .serverPort(server.port)
                 .secure(server.secure)
                 .afterBuildConsumer {
-                    it.setInputListener(::println)
                     it.eventManager.registerEventListener(ServerManager(it, server))
                 }
                 .build()
