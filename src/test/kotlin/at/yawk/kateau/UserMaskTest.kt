@@ -1,4 +1,4 @@
-package at.yawk.katamaran
+package at.yawk.kateau
 
 import org.testng.Assert
 import org.testng.annotations.Test

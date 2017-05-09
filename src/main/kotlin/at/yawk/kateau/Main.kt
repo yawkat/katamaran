@@ -1,4 +1,4 @@
-package at.yawk.katamaran
+package at.yawk.kateau
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import net.engio.mbassy.listener.Handler

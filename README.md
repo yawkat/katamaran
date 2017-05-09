@@ -1,4 +1,4 @@
-katamaran
-=========
+kateau
+======
 
 IRC permission manager bot

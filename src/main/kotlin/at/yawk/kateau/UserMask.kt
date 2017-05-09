@@ -1,4 +1,4 @@
-package at.yawk.katamaran
+package at.yawk.kateau
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import org.kitteh.irc.client.library.element.User
